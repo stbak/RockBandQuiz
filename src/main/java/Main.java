@@ -43,8 +43,10 @@ public class Main {
 
         terminal.flush();
         //get the band and write out as many _ as char's in bandname
+       // GetTheBand band = new GetTheBand();
+       // String currentBand = band.guessTheBand().trim();
         GetTheBand band = new GetTheBand();
-        String currentBand = band.guessTheBand().trim();
+        String currentBand = band.guessTheBand();
         int xStart = 2;
         int orgXStart = 2;
         int yStart = 4;
