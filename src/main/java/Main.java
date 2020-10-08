@@ -79,11 +79,16 @@ public class Main {
             }
             xStart=xStart+2;
         }
-        terminal.setCursorPosition(2, yStart+2); //cursor for user input
+        terminal.setCursorPosition(2, yStart+2);           //cursor for user input
         terminal.flush();
-        System.out.println(currentBand); //FOR DEBUGGING
+        System.out.println(currentBand);                        //FOR DEBUGGING
         //ask for user input
 
+        //========================================================================================
+        ArrayList<Character> faultyGuesses = new ArrayList<>(); //keeper for each bad guess
+        int noHitXPos = 2;                                      //this is where we start putting incorrect char's on X-axis
+        final int noHitYPos = yStart + 4;                       //this is the row we always use for incorrect guesses
+        //========================================================================================
 
         boolean continueReadingInput = true;
         while (continueReadingInput) {
@@ -93,7 +98,7 @@ public class Main {
                 keyStroke = terminal.pollInput();
             } while (keyStroke == null);
             KeyType type = keyStroke.getKeyType();
-            Character c2 = keyStroke.getCharacter();
+            Character c2 = keyStroke.getCharacter();  //the char we entered as guess (if guessing, not quitting etc.)
             System.out.println("keyStroke.getKeyType(): " + type
                     + " keyStroke.getCharacter(): " + c2);
 
@@ -109,26 +114,28 @@ public class Main {
             hitsInBandNameString = guess.getHits().size(); //same char can be on several places in bandname
             System.out.println("hits size: " + hitsInBandNameString);
 
-            int noHitXPos = 2; //this is where we start putting incorrect char's on X-axis
-            final int noHitYPos = yStart + 4; //this is the row we always use for incorrect guesses
+
 
             //char[] to keep all faulty guesses, must be as big as allowed number of guesses
-            ArrayList<Character> faultyGuesses = new ArrayList<>();
+
 
             //PRINT OUT GUESSES
             if (hitsInBandNameString == 0) {
                 faultyGuesses.add(c2);
-                for (Character faulty: faultyGuesses
-                     ) {
-                    terminal.setCursorPosition(noHitXPos, noHitYPos);
-                    terminal.putCharacter(faulty);
-                    noHitXPos++;
-                }
-                terminal.setCursorPosition(2, yStart+2); //cursor for user input
-                terminal.flush();
 
             }
 
+            //-faulty guesses printout
+            for (int i = 0; i < guess.getFaulties().size(); i++) {
+                terminal.setCursorPosition(noHitXPos, noHitYPos);
+                terminal.putCharacter(guess.getFaulties().get(i));
+                noHitXPos++;
+            }
+            terminal.flush();
+            terminal.setCursorPosition(2, yStart+2); //cursor for user input
+            terminal.flush();
+
+            //-correct guesses printout
             for (int i = 0; i < hitsInBandNameString; i++) { //place guess on correct location(s)
                 terminal.setCursorPosition(orgXStart + (guess.getHits().get(i) * 2),yStart);
                 terminal.putCharacter(c2);
@@ -138,7 +145,7 @@ public class Main {
                 System.out.println("Guess: " + c2 + ", position: " + guess.getHits().get(i));
             }
 
-
+            //-end if number of guesses reached maximum
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
                 continueReadingInput = false;
@@ -149,7 +156,6 @@ public class Main {
         }
 
     }
-
 
 
 

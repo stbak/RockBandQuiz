@@ -6,24 +6,34 @@ public class Guess {
     private Position position;
     private String band;
     private List<Integer> hits = new ArrayList<>();
+    private List<Character> faulties = new ArrayList<>();
 
     public Guess(char guess, String band) {
         this.guess = guess;
         this.band = band.toLowerCase();
     }
 
-    public List<Integer> getHits() {
+    public List<Integer> getHits() { //what's this for????
         return hits;
+    }
+
+    public List<Character> getFaulties() {
+        return faulties;
     }
 
     public void theGuess() {
         int cbLength = band.length();
-        int counter = 0;
+        boolean hit = false;
 
         for (int i = 0; i < cbLength; i++) {
             if (guess == band.charAt(i)) { //you found one
                 hits.add(i);
+                hit = true;
             }
+        }
+
+        if (!hit) {
+            faulties.add(guess);
         }
 
     }
