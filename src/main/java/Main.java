@@ -12,6 +12,7 @@ public class Main {
 
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         Terminal terminal = terminalFactory.createTerminal();
+        terminal.setForegroundColor(TextColor.ANSI.YELLOW);
         terminal.setCursorVisible(true);
 
         int terminalWidth = terminal.getTerminalSize().getColumns();
