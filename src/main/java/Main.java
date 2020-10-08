@@ -1,6 +1,9 @@
 import com.googlecode.lanterna.TextColor;
+import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.input.KeyType;
+import com.googlecode.lanterna.screen.Screen;
+import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
@@ -18,6 +21,9 @@ public class Main {
         Terminal terminal = terminalFactory.createTerminal();
         terminal.setForegroundColor(TextColor.ANSI.YELLOW);
         terminal.setCursorVisible(true);
+
+        Screen screen = new TerminalScreen(terminal);
+        TextGraphics tg = screen.newTextGraphics();
 
         int terminalWidth = terminal.getTerminalSize().getColumns();
         int terminalHeight = terminal.getTerminalSize().getRows();
@@ -149,7 +155,13 @@ public class Main {
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
                 continueReadingInput = false;
-                System.out.println("Game over...");
+                terminal.newTextGraphics();
+                screen.startScreen();
+                tg.setForegroundColor(TextColor.ANSI.RED);
+                tg.putString(22, 10, "Game Over!");
+                screen.refresh();
+                screen.readInput();
+                screen.stopScreen();
                 terminal.close();
             }
 
