@@ -40,6 +40,7 @@ public class Main {
         int infoPrintLength = 0;
 
 
+
         for (int i = 0; i < c.length; i++) {
             terminal.setCursorPosition(gameNameStartingPoint, 1); //gameName on first row
             //terminal.setForegroundColor(TextColor.ANSI.RED);
@@ -64,13 +65,16 @@ public class Main {
         //get the band and write out as many _ as char's in bandname
         GetTheBand band = new GetTheBand();
         String currentBand = band.guessTheBand();
-        int xStart = 2;
-        int orgXStart = 2;
-        int yStart = 4;
-        int curBandLength = currentBand.length();
-        int allowedNumberOfGuesses = curBandLength * 2;
-        int guessCounter = 0;
-        int hitsInBandNameString;
+
+        int xStart = 2;     //staring column for where we put the "_" placeholders
+        int orgXStart = 2;  //for being able to later refer starting point
+        int yStart = 4;     //the starting row for "_" placeholders
+        int curBandLength = currentBand.length();   //for counting later on
+        int allowedNumberOfGuesses = correctedBandNameLength(currentBand) * 2; //removes spaces from being counted as part of band name
+        System.out.println(curBandLength + "/" + allowedNumberOfGuesses); //DEBUGGING (remove)
+        int guessCounter = 0;       //keeping track of guesses
+        int hitsInBandNameString;   //the number of times a character is found in band name (Kiss = 2 x s)
+        int noCorrectGuesses = 0;   //keeping track of correct guesses
 
         Position[] positions = new Position[curBandLength];
         //Guess[] guesses = new Guess[allowedNumberOfGuesses];
@@ -80,10 +84,11 @@ public class Main {
         for (int i = 0; i < currentBand.length(); i++) {
             terminal.setCursorPosition(xStart, yStart);
             positions[i] = new Position(xStart, yStart); //to keep track of where to place char's
-            if (currentBand.charAt(i) != ' ') {
-                terminal.putCharacter('_');
+            if (currentBand.charAt(i) != ' ') {                 // if not a space, then
+                terminal.putCharacter('_');                 // print "_" placeholder
             } else {
-                terminal.putCharacter(currentBand.charAt(i));
+                terminal.putCharacter(currentBand.charAt(i));  // else print out the space
+                noCorrectGuesses++;                             // and increase correct guesses since player won't guess on spaces
             }
             xStart=xStart+2;
         }
@@ -123,8 +128,6 @@ public class Main {
 
 
 
-            //char[] to keep all faulty guesses, must be as big as allowed number of guesses
-
 
             //PRINT OUT GUESSES
             
@@ -144,8 +147,19 @@ public class Main {
                 terminal.putCharacter(c2);
                 terminal.setCursorPosition(2, yStart+2); //cursor for user input
                 terminal.flush();
+                noCorrectGuesses++;
+                //System.out.println("Guess: " + c2 + ", position: " + guess.getHits().get(i));
+            }
+            System.out.println("bandname length: " + currentBand.length() + ", correctGuesses: " + noCorrectGuesses);
+            //Check if we have guessed whole bandname correct
 
-                System.out.println("Guess: " + c2 + ", position: " + guess.getHits().get(i));
+            if (curBandLength == noCorrectGuesses) {
+                tg.putString(2, noHitYPos, "Correct answer!");
+                Thread.sleep(100);
+                terminal.flush();
+                guessCounter = allowedNumberOfGuesses+1;
+            }  else if (noCorrectGuesses > curBandLength) {
+                guessCounter = allowedNumberOfGuesses;
             }
 
             //-end if number of guesses reached maximum
@@ -165,8 +179,18 @@ public class Main {
 
         }
 
+
     }
 
+    static int correctedBandNameLength(String bandName) { //do not count space's
 
+        int len = bandName.length();
+        for (int i = 0; i < bandName.length(); i++) {
+            if (bandName.charAt(i) == ' ') {
+                len--;
+            }
+        }
+        return len;
+    }
 
 }
