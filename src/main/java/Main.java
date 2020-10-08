@@ -1,3 +1,5 @@
+import com.googlecode.lanterna.TerminalPosition;
+import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.input.KeyStroke;
@@ -158,6 +160,7 @@ public class Main {
                 terminal.newTextGraphics();
                 screen.startScreen();
                 tg.setForegroundColor(TextColor.ANSI.RED);
+                tg.drawRectangle(new TerminalPosition(20,9), new TerminalSize(14,3), '*');
                 tg.putString(22, 10, "Game Over!");
                 screen.refresh();
                 screen.readInput();
