@@ -5,8 +5,8 @@ public class Guess {
     private char guess;
     private Position position;
     private String band;
-    private List<Integer> hits = new ArrayList<>();
-    private List<Character> faulties = new ArrayList<>();
+    private List<Integer> hits = new ArrayList<>();         //here we keep the good guesses
+    private List<Character> faulties = new ArrayList<>();   //here we keep the bad guesses
 
     public Guess(char guess, String band) {
         this.guess = guess;

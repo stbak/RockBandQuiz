@@ -91,7 +91,6 @@ public class Main {
         //ask for user input
 
         //========================================================================================
-        ArrayList<Character> faultyGuesses = new ArrayList<>(); //keeper for each bad guess
         int noHitXPos = 2;                                      //this is where we start putting incorrect char's on X-axis
         final int noHitYPos = yStart + 4;                       //this is the row we always use for incorrect guesses
         //========================================================================================
@@ -126,11 +125,7 @@ public class Main {
 
 
             //PRINT OUT GUESSES
-            if (hitsInBandNameString == 0) {
-                faultyGuesses.add(c2);
-
-            }
-
+            
             //-faulty guesses printout
             for (int i = 0; i < guess.getFaulties().size(); i++) {
                 terminal.setCursorPosition(noHitXPos, noHitYPos);
