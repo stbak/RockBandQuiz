@@ -6,7 +6,7 @@ import com.googlecode.lanterna.terminal.Terminal;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Main extends Intro {
+public class Main {
 
     public Main() throws IOException {
     }
