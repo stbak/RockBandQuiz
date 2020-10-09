@@ -46,6 +46,7 @@ public class Main {
         tg.putString(gameInfoStartingPoint, 23, gameinfo);
         screen.refresh();
 
+
         // Initiate background music player
         String waveFile = "bgsound_guitar2.wav";
         MusicPlayer myPlayer = new MusicPlayer(waveFile, true);
@@ -102,6 +103,9 @@ public class Main {
         //========================================================================================
         int noHitXPos = orgXStart;                              //this is where we start putting incorrect char's on X-axis
         final int noHitYPos = yStart + 3;                       //this is the row we always use for incorrect guesses
+        String incorrect = "Used characters: ";
+        tg.putString((noHitXPos-incorrect.length()), noHitYPos, incorrect);
+        screen.refresh();
         //========================================================================================
 
         boolean continueReadingInput = true;
@@ -115,10 +119,8 @@ public class Main {
             KeyType type = keyStroke.getKeyType();
             Character c2 = keyStroke.getCharacter();  //the char we entered as guess (if guessing, not quitting etc.)
             btnPlayer.run();
-            System.out.println("keyStroke.getKeyType(): " + type
-                    + " keyStroke.getCharacter(): " + c2);
 
-            if (c2 == Character.valueOf('<')) {
+            if (c2 == Character.valueOf('<')) {     //manual end game during ongoing round
                 //stop play background music and btnSounds
                 stopBackgroundMusic(myPlayer);
                 continueReadingInput = false;
@@ -135,6 +137,7 @@ public class Main {
             //PRINT OUT GUESSES
             
             //-faulty guesses printout
+
             for (int i = 0; i < guess.getFaulties().size(); i++) {
                 terminal.setCursorPosition(noHitXPos, noHitYPos);
                 terminal.putCharacter(guess.getFaulties().get(i));
@@ -146,16 +149,16 @@ public class Main {
 
             //-correct guesses printout
             for (int i = 0; i < hitsInBandNameString; i++) { //place guess on correct location(s)
+
                 terminal.setCursorPosition(orgXStart + (guess.getHits().get(i) * 2),yStart);
                 terminal.putCharacter(c2);
                 terminal.setCursorPosition(2, yStart+2); //cursor for user input
                 terminal.flush();
                 noCorrectGuesses++;
-                //System.out.println("Guess: " + c2 + ", position: " + guess.getHits().get(i));
-            }
-            System.out.println("bandname length: " + currentBand.length() + ", correctGuesses: " + noCorrectGuesses + ", guessCounter: " + guessCounter);
-            //Check if we have guessed whole bandname correct
 
+            }
+
+            //Check if we have guessed whole bandname correct
             if (curBandLength == noCorrectGuesses) {
                 //stop play background music
                 winOrLoose = true;
@@ -163,9 +166,15 @@ public class Main {
                 Thread.sleep(2000); //give background music time to stop before playing success sound
                 MusicPlayer success = new MusicPlayer(successSound, false);
                 success.run();
+
+                //clear some stuff to make place for new info
+                tg.putString(1, 23, eightyEmptySpaces());
+                tg.putString(1, noHitYPos, eightyEmptySpaces());
+                screen.refresh();
+                //and the print winner mess.
                 tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, currentBand + " is the correct answer!");
-                Thread.sleep(100);
-                terminal.flush();
+                screen.refresh();
+
                 guessCounter = allowedNumberOfGuesses+1;
             }  else if (noCorrectGuesses > curBandLength) {
                 guessCounter = allowedNumberOfGuesses;
@@ -203,7 +212,9 @@ public class Main {
 
     }
 
-    static int correctedBandNameLength(String bandName) { //do not count space's
+
+    // Misc methods
+    static int correctedBandNameLength(String bandName) { //do not count space's when setting maximum guesses
         int len = bandName.length();
         for (int i = 0; i < bandName.length(); i++) {
             if (bandName.charAt(i) == ' ') {
@@ -211,6 +222,14 @@ public class Main {
             }
         }
         return len;
+    }
+
+    static String eightyEmptySpaces() { // just a dummy for clearing a row
+        String emptySpaces = " ";
+        for (int i = 0; i < 80; i++) {
+            emptySpaces = emptySpaces + " ";
+        }
+        return emptySpaces;
     }
 
     static String winnerPrintOut(String bandName, MusicPlayer successSound) {
@@ -223,16 +242,16 @@ public class Main {
         return "Ohhh no, you lost! Correct answer was " + bandName + "...";
     }
 
-    static int startingPoints(int screenWidth, int strLength) {
+    static int startingPoints(int screenWidth, int strLength) { // used for counting where to start a string if it should be centered
         int middle = screenWidth/2;
         int strL = strLength/2;
 
         return middle - strL;
     }
 
-    static void stopBackgroundMusic(MusicPlayer myPlayer) {
+    static void stopBackgroundMusic(MusicPlayer myPlayer) { // well, stops the background sound
         try {
-            Thread.sleep(300);
+            Thread.sleep(5);
             myPlayer.stop();
         } catch (InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
