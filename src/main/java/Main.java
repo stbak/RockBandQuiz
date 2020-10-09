@@ -49,6 +49,7 @@ public class Main {
         // Initiate background music player
         String waveFile = "bgsound_guitar2.wav";
         MusicPlayer myPlayer = new MusicPlayer(waveFile, true);
+        myPlayer.run();
         // Inititate btn press sound
         String btnSound = "btnsound1.wav";
         MusicPlayer btnPlayer = new MusicPlayer(btnSound, false);
@@ -159,8 +160,9 @@ public class Main {
                 //stop play background music
                 winOrLoose = true;
                 stopBackgroundMusic(myPlayer);
-                Thread.sleep(400); //give background music time to stop before playing success sound
+                Thread.sleep(2000); //give background music time to stop before playing success sound
                 MusicPlayer success = new MusicPlayer(successSound, false);
+                success.run();
                 tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, currentBand + " is the correct answer!");
                 Thread.sleep(100);
                 terminal.flush();
@@ -174,9 +176,11 @@ public class Main {
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
                 stopBackgroundMusic(myPlayer);
-                Thread.sleep(400); //give background music time to stop before playing failure sound
+
                 if (!winOrLoose) {
+                    Thread.sleep(2000); //give background music time to stop before playing failure sound
                     MusicPlayer loose = new MusicPlayer(failSound, false);
+                    loose.run();
                 }
                 continueReadingInput = false;
                 terminal.newTextGraphics();
@@ -207,6 +211,16 @@ public class Main {
             }
         }
         return len;
+    }
+
+    static String winnerPrintOut(String bandName, MusicPlayer successSound) {
+        MusicPlayer winner = new MusicPlayer(successSound.waveFile, false);
+        return "Yes, you did it! Correct answer is " + bandName + ", well done!!";
+    }
+
+    static String looserPrintOut(String bandName, MusicPlayer failSound) {
+        MusicPlayer looser = new MusicPlayer(failSound.waveFile, false);
+        return "Ohhh no, you lost! Correct answer was " + bandName + "...";
     }
 
     static int startingPoints(int screenWidth, int strLength) {
