@@ -21,63 +21,54 @@ public class Main {
 
         DefaultTerminalFactory terminalFactory = new DefaultTerminalFactory();
         Terminal terminal = terminalFactory.createTerminal();
-        terminal.setForegroundColor(TextColor.ANSI.YELLOW);
+        //terminal.setForegroundColor(TextColor.ANSI.YELLOW); //obsolete
         terminal.setCursorVisible(true);
 
-        Screen screen = new TerminalScreen(terminal);
-        TextGraphics tg = screen.newTextGraphics();
 
         int terminalWidth = terminal.getTerminalSize().getColumns();
         int terminalHeight = terminal.getTerminalSize().getRows();
 
-        //some fancy presentation stuff
+        //some fancy presentation stuff ;)
         String gamename = "\\m/ Guess the rockband \\m/";
         String gameinfo = "Press < to end game";
         Character[] c = new Character[gamename.length()];
-        int gameNameStartingPoint = (terminalWidth/2) - (gamename.length()/2);
-        int infoStartingPoint = 2;
-
-        int infoPrintLength = 0;
+        int gameNameStartingPoint = startingPoints(terminalWidth, gamename.length());
+        int gameInfoStartingPoint = startingPoints(terminalWidth, gameinfo.length());
 
 
+        Screen screen = new TerminalScreen(terminal);
+        TextGraphics tg = screen.newTextGraphics();
+        tg.setForegroundColor(TextColor.ANSI.YELLOW);
+        terminal.newTextGraphics();
+        screen.startScreen();
+        tg.putString(gameNameStartingPoint, 0, gamename);
+        tg.putString(gameInfoStartingPoint, 23, gameinfo);
+        screen.refresh();
 
-        for (int i = 0; i < c.length; i++) {
-            terminal.setCursorPosition(gameNameStartingPoint, 1); //gameName on first row
-            //terminal.setForegroundColor(TextColor.ANSI.RED);
-            terminal.putCharacter(gamename.charAt(i));
-            gameNameStartingPoint++;
-
-        }
-        terminal.flush();
-        for (int i = 0; i < gameinfo.length(); i++) {
-            terminal.setCursorPosition(infoStartingPoint, 24); //end game info
-            terminal.putCharacter(gameinfo.charAt(i));
-            infoStartingPoint++;
-
-        }
-        terminal.flush();
-
-        // Example of playing background music in new thread, just use Music class and these 2 lines:
+        // Thanks Andreas!
         Thread thread = new Thread(new Music());
         thread.start();
 
 
-        //get the band and write out as many _ as char's in bandname
+        // get the band and write out as many _ as char's in bandname, with a space in between each for better user experience
         GetTheBand band = new GetTheBand();
         String currentBand = band.guessTheBand();
-
-        int xStart = 2;     //staring column for where we put the "_" placeholders
-        int orgXStart = 2;  //for being able to later refer starting point
-        int yStart = 4;     //the starting row for "_" placeholders
         int curBandLength = currentBand.length();   //for counting later on
-        int allowedNumberOfGuesses = correctedBandNameLength(currentBand) * 2; //removes spaces from being counted as part of band name
-        System.out.println(curBandLength + "/" + allowedNumberOfGuesses); //DEBUGGING (remove)
-        int guessCounter = 0;       //keeping track of guesses
-        int hitsInBandNameString;   //the number of times a character is found in band name (Kiss = 2 x s)
-        int noCorrectGuesses = 0;   //keeping track of correct guesses
+
+        int xStart = startingPoints(terminalWidth, (curBandLength * 2));     //staring column for where we put the "_" placeholders, curBandLength * 2 since we place spaces in between each char in bandname
+        System.out.println(terminalWidth + "/" + curBandLength + "/" + startingPoints(terminalWidth, curBandLength));
+        final int orgXStart = xStart;  //for being able to later refer starting point
+        final int yStart = 2;         //the starting row for "_" placeholders
+
+        int allowedNumberOfGuesses = correctedBandNameLength(currentBand) * 2;  //removes spaces from being counted as part of band name, * 2 = twice as many guesses as bandname i long
+        System.out.println(curBandLength + "/" + allowedNumberOfGuesses);       //DEBUGGING (remove)
+        int guessCounter = 0;                                                   //keeping track of guesses
+        int hitsInBandNameString;                                               //the number of times a character is found in band name (Kiss = 2 x s)
+        int noCorrectGuesses = 0;                                               //keeping track of correct guesses
+        String strCorrect = currentBand + " is the correct answer!";
 
         Position[] positions = new Position[curBandLength];
-        //Guess[] guesses = new Guess[allowedNumberOfGuesses];
+
 
 
         //print out the empty char slots to guess on
@@ -92,14 +83,14 @@ public class Main {
             }
             xStart=xStart+2;
         }
-        terminal.setCursorPosition(2, yStart+2);           //cursor for user input
+        terminal.setCursorPosition(orgXStart, yStart+1);           //cursor for user input
         terminal.flush();
-        System.out.println(currentBand);                        //FOR DEBUGGING
+        System.out.println(currentBand);                                //FOR DEBUGGING
         //ask for user input
 
         //========================================================================================
-        int noHitXPos = 2;                                      //this is where we start putting incorrect char's on X-axis
-        final int noHitYPos = yStart + 4;                       //this is the row we always use for incorrect guesses
+        int noHitXPos = orgXStart;                              //this is where we start putting incorrect char's on X-axis
+        final int noHitYPos = yStart + 3;                       //this is the row we always use for incorrect guesses
         //========================================================================================
 
         boolean continueReadingInput = true;
@@ -126,9 +117,6 @@ public class Main {
             hitsInBandNameString = guess.getHits().size(); //same char can be on several places in bandname
             System.out.println("hits size: " + hitsInBandNameString);
 
-
-
-
             //PRINT OUT GUESSES
             
             //-faulty guesses printout
@@ -150,11 +138,11 @@ public class Main {
                 noCorrectGuesses++;
                 //System.out.println("Guess: " + c2 + ", position: " + guess.getHits().get(i));
             }
-            System.out.println("bandname length: " + currentBand.length() + ", correctGuesses: " + noCorrectGuesses);
+            System.out.println("bandname length: " + currentBand.length() + ", correctGuesses: " + noCorrectGuesses + ", guessCounter: " + guessCounter);
             //Check if we have guessed whole bandname correct
 
             if (curBandLength == noCorrectGuesses) {
-                tg.putString(2, noHitYPos, "Correct answer!");
+                tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, currentBand + " is the correct answer!");
                 Thread.sleep(100);
                 terminal.flush();
                 guessCounter = allowedNumberOfGuesses+1;
@@ -187,7 +175,6 @@ public class Main {
     }
 
     static int correctedBandNameLength(String bandName) { //do not count space's
-
         int len = bandName.length();
         for (int i = 0; i < bandName.length(); i++) {
             if (bandName.charAt(i) == ' ') {
@@ -195,6 +182,13 @@ public class Main {
             }
         }
         return len;
+    }
+
+    static int startingPoints(int screenWidth, int strLength) {
+        int middle = screenWidth/2;
+        int strL = strLength/2;
+
+        return middle - strL;
     }
 
 }
