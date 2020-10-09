@@ -186,10 +186,10 @@ public class Main {
                 terminal.newTextGraphics();
                 screen.startScreen();
                 tg.setForegroundColor(TextColor.ANSI.RED);
-                tg.drawRectangle(new TerminalPosition(20,9), new TerminalSize(14,3), '*');
-                tg.putString(22, 10, "Game Over!");
+                tg.drawRectangle(new TerminalPosition(33,9), new TerminalSize(14,3), '*');
+                tg.putString(35, 10, "Game Over!");
                 tg.setForegroundColor(TextColor.ANSI.WHITE);
-                tg.putString( 14, 20, "<ENTER>=New Game   <ESC>=quit Game");
+                tg.putString( 23, 20, "<ENTER>=New Game   <ESC>=quit Game");
                 screen.refresh();
                 KeyStroke key = null;
                 while ((key = screen.readInput()).getKeyType() != KeyType.Escape)
