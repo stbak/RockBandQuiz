@@ -9,6 +9,7 @@ import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -45,9 +46,14 @@ public class Main {
         tg.putString(gameInfoStartingPoint, 23, gameinfo);
         screen.refresh();
 
-        // Thanks Andreas!
-        Thread thread = new Thread(new Music());
-        thread.start();
+        // Initiate background music player
+        String waveFile = "bgsound_guitar2.wav";
+        MusicPlayer myPlayer = new MusicPlayer(waveFile, true);
+        // Inititate btn press sound
+        String btnSound = "btnsound1.wav";
+        MusicPlayer btnPlayer = new MusicPlayer(btnSound, false);
+
+
 
 
         // get the band and write out as many _ as char's in bandname, with a space in between each for better user experience
@@ -96,16 +102,20 @@ public class Main {
         boolean continueReadingInput = true;
         while (continueReadingInput) {
             KeyStroke keyStroke = null;
+
             do {
                 Thread.sleep(5); // might throw InterruptedException
                 keyStroke = terminal.pollInput();
             } while (keyStroke == null);
             KeyType type = keyStroke.getKeyType();
             Character c2 = keyStroke.getCharacter();  //the char we entered as guess (if guessing, not quitting etc.)
+            btnPlayer.run();
             System.out.println("keyStroke.getKeyType(): " + type
                     + " keyStroke.getCharacter(): " + c2);
 
             if (c2 == Character.valueOf('<')) {
+                //stop play background music and btnSounds
+                stopBackgroundMusic(myPlayer);
                 continueReadingInput = false;
                 terminal.close();
                 System.out.println("quit");
@@ -142,6 +152,8 @@ public class Main {
             //Check if we have guessed whole bandname correct
 
             if (curBandLength == noCorrectGuesses) {
+                //stop play background music
+                stopBackgroundMusic(myPlayer);
                 tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, currentBand + " is the correct answer!");
                 Thread.sleep(100);
                 terminal.flush();
@@ -153,6 +165,7 @@ public class Main {
             //-end if number of guesses reached maximum
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
+                stopBackgroundMusic(myPlayer);
                 continueReadingInput = false;
                 terminal.newTextGraphics();
                 screen.startScreen();
@@ -189,6 +202,15 @@ public class Main {
         int strL = strLength/2;
 
         return middle - strL;
+    }
+
+    static void stopBackgroundMusic(MusicPlayer myPlayer) {
+        try {
+            Thread.sleep(1000);
+            myPlayer.stop();
+        } catch (InterruptedException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
     }
 
 }
