@@ -52,13 +52,16 @@ public class Main {
         // Inititate btn press sound
         String btnSound = "btnsound1.wav";
         MusicPlayer btnPlayer = new MusicPlayer(btnSound, false);
-
+        // fail or success sounds
+        String failSound = "failSound.wav";
+        String successSound = "successSound.wav";
 
 
 
         // get the band and write out as many _ as char's in bandname, with a space in between each for better user experience
         GetTheBand band = new GetTheBand();
         String currentBand = band.guessTheBand();
+        currentBand = "abba";
         int curBandLength = currentBand.length();   //for counting later on
 
         int xStart = startingPoints(terminalWidth, (curBandLength * 2));     //staring column for where we put the "_" placeholders, curBandLength * 2 since we place spaces in between each char in bandname
@@ -72,6 +75,7 @@ public class Main {
         int hitsInBandNameString;                                               //the number of times a character is found in band name (Kiss = 2 x s)
         int noCorrectGuesses = 0;                                               //keeping track of correct guesses
         String strCorrect = currentBand + " is the correct answer!";
+        boolean winOrLoose = false;                                                //will of course be true on correct guess
 
         Position[] positions = new Position[curBandLength];
 
@@ -153,19 +157,27 @@ public class Main {
 
             if (curBandLength == noCorrectGuesses) {
                 //stop play background music
+                winOrLoose = true;
                 stopBackgroundMusic(myPlayer);
+                Thread.sleep(400); //give background music time to stop before playing success sound
+                MusicPlayer success = new MusicPlayer(successSound, false);
                 tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, currentBand + " is the correct answer!");
                 Thread.sleep(100);
                 terminal.flush();
                 guessCounter = allowedNumberOfGuesses+1;
             }  else if (noCorrectGuesses > curBandLength) {
                 guessCounter = allowedNumberOfGuesses;
+                winOrLoose = false;
             }
 
             //-end if number of guesses reached maximum
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
                 stopBackgroundMusic(myPlayer);
+                Thread.sleep(400); //give background music time to stop before playing failure sound
+                if (!winOrLoose) {
+                    MusicPlayer loose = new MusicPlayer(failSound, false);
+                }
                 continueReadingInput = false;
                 terminal.newTextGraphics();
                 screen.startScreen();
@@ -206,7 +218,7 @@ public class Main {
 
     static void stopBackgroundMusic(MusicPlayer myPlayer) {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(300);
             myPlayer.stop();
         } catch (InterruptedException e) {
             System.out.println("Exception: " + e.getMessage());
