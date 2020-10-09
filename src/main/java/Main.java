@@ -132,8 +132,7 @@ public class Main {
             guess.theGuess();
 
             hitsInBandNameString = guess.getHits().size(); //same char can be on several places in bandname
-            System.out.println("hits size: " + hitsInBandNameString);
-
+            
             //PRINT OUT GUESSES
             
             //-faulty guesses printout
@@ -176,9 +175,13 @@ public class Main {
                 screen.refresh();
 
                 guessCounter = allowedNumberOfGuesses+1;
+
             }  else if (noCorrectGuesses > curBandLength) {
+
+                System.out.println("noCorrectGuesses > curBandLength " + noCorrectGuesses + " > " + curBandLength);
                 guessCounter = allowedNumberOfGuesses;
                 winOrLoose = false;
+
             }
 
             //-end if number of guesses reached maximum
