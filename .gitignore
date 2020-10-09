@@ -1,3 +1,4 @@
 *.class
 pom.xml
 .idea/
+*.jar
