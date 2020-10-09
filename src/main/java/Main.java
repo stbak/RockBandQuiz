@@ -79,6 +79,7 @@ public class Main {
         String strCorrect = currentBand + " is the correct answer!";
         boolean winOrLoose = false;                                                //will of course be true on correct guess
 
+
         Position[] positions = new Position[curBandLength];
 
 
@@ -118,9 +119,12 @@ public class Main {
             } while (keyStroke == null);
             KeyType type = keyStroke.getKeyType();
             Character c2 = keyStroke.getCharacter();  //the char we entered as guess (if guessing, not quitting etc.)
+
+
             btnPlayer.run();
 
-            if (c2 == Character.valueOf('<')) {     //manual end game during ongoing round
+            //Manual end game during ongoing round
+            if (c2 == Character.valueOf('<')) {
                 //stop play background music and btnSounds
                 stopBackgroundMusic(myPlayer);
                 continueReadingInput = false;
@@ -128,15 +132,15 @@ public class Main {
                 System.out.println("quit");
             }
 
+            // Pass in pressed key (if not "<") to Guess
             Guess guess = new Guess(c2, currentBand);
             guess.theGuess();
 
             hitsInBandNameString = guess.getHits().size(); //same char can be on several places in bandname
-            
+
             //PRINT OUT GUESSES
             
             //-faulty guesses printout
-
             for (int i = 0; i < guess.getFaulties().size(); i++) {
                 terminal.setCursorPosition(noHitXPos, noHitYPos);
                 terminal.putCharacter(guess.getFaulties().get(i));
@@ -176,24 +180,28 @@ public class Main {
 
                 guessCounter = allowedNumberOfGuesses+1;
 
-            }  else if (noCorrectGuesses > curBandLength) {
-
-                System.out.println("noCorrectGuesses > curBandLength " + noCorrectGuesses + " > " + curBandLength);
-                guessCounter = allowedNumberOfGuesses;
+            } else if (guessCounter == allowedNumberOfGuesses) { //we have guessed max times so we have lost since noCorrectGuesses < curBandLength
+                
                 winOrLoose = false;
+                stopBackgroundMusic(myPlayer);
+                Thread.sleep(2000); //give background music time to stop before playing success sound
+                MusicPlayer loose = new MusicPlayer(failSound, false);
+                loose.run();
+
+                tg.putString(1, 23, eightyEmptySpaces());
+                tg.putString(1, noHitYPos, eightyEmptySpaces());
+                screen.refresh();
+                tg.putString(startingPoints(terminalWidth, strCorrect.length()), noHitYPos, "Ohhh no, you lost! Correct answer was " + currentBand + "...");
+                screen.refresh();
 
             }
 
             //-end if number of guesses reached maximum
             guessCounter++;
             if (guessCounter > allowedNumberOfGuesses) {
-                stopBackgroundMusic(myPlayer);
+                //stopBackgroundMusic(myPlayer);
 
-                if (!winOrLoose) {
-                    Thread.sleep(2000); //give background music time to stop before playing failure sound
-                    MusicPlayer loose = new MusicPlayer(failSound, false);
-                    loose.run();
-                }
+
                 continueReadingInput = false;
                 terminal.newTextGraphics();
                 screen.startScreen();
@@ -208,6 +216,9 @@ public class Main {
                     screen.stopScreen();
                 terminal.close();
 
+            } else {
+                //print looser message
+                System.out.println("noCorrectGuesses > curBandLength " + noCorrectGuesses + " > " + curBandLength);
             }
 
         }
@@ -235,15 +246,7 @@ public class Main {
         return emptySpaces;
     }
 
-    static String winnerPrintOut(String bandName, MusicPlayer successSound) {
-        MusicPlayer winner = new MusicPlayer(successSound.waveFile, false);
-        return "Yes, you did it! Correct answer is " + bandName + ", well done!!";
-    }
 
-    static String looserPrintOut(String bandName, MusicPlayer failSound) {
-        MusicPlayer looser = new MusicPlayer(failSound.waveFile, false);
-        return "Ohhh no, you lost! Correct answer was " + bandName + "...";
-    }
 
     static int startingPoints(int screenWidth, int strLength) { // used for counting where to start a string if it should be centered
         int middle = screenWidth/2;
